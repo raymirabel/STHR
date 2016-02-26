@@ -56,7 +56,7 @@
 #define SENSOR_DHT22		// Sensor temperatura y humedad
 //#define SENSOR_CO2S8		// Sensor CO2 infrarrojos
 
-#define WIFI_SSID     "AT+CWJAP=\"OvisLink\",\"entiemposdemordorysordor\""
+#define WIFI_SSID     "AT+CWJAP=\"colocar_aqui_ssid_wifi\",\"colocar_aqui_password_wifi\""
 #define APIKEY        "6683ab103fef682bdd6ea48e65a2ad33"
 #define NODE          "1"
 
