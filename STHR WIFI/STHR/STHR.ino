@@ -56,8 +56,9 @@
 #define SENSOR_DHT22		// Sensor temperatura y humedad
 //#define SENSOR_CO2S8		// Sensor CO2 infrarrojos
 
-#define WIFI_SSID     "AT+CWJAP=\"colocar_aqui_ssid_wifi\",\"colocar_aqui_password_wifi\""
-#define APIKEY        "6683ab103fef682bdd6ea48e65a2ad33"
+// Coloca aquí el SSID y PASS de tu router wifi:
+#define WIFI_SSID     "AT+CWJAP=\"SSID_WIFI\",\"PASS_WIFI\""
+#define APIKEY        "APIKEY"
 #define NODE          "1"
 
 const int time_between_readings     = 10;     // in minutes
@@ -121,7 +122,8 @@ typedef struct {                                                      // RFM12B 
 } Payload;
 Payload sthr;
 
-SoftwareSerial cdm(11, 12); // RX, TX
+SoftwareSerial cdm(CDM8S_RX, CDM8S_TX); // RX, TX
+//SoftwareSerial cdm(11, 12); // RX, TX
 
 char buffer_rx[15];
 byte cnt = 0;
@@ -165,11 +167,8 @@ void setup() {
   pinMode(16, OUTPUT);
   digitalWrite(16, LOW); 
 
-
-  // Serial ports init
-  cdm.begin(9600);
   Serial.begin(9600);
-  
+
  
   //################################################################################################################################
   // Power Save  - turn off what we don't need - http://www.nongnu.org/avr-libc/user-manual/group__avr__power.html
@@ -188,7 +187,7 @@ void setup() {
   // Test for presence of DHT22
   //################################################################################################################################
   digitalWrite(DHT22_PWR,HIGH);
-  dodelay(1000);                                                        // wait 2s for DH22 to warm up
+  dodelay(2000);                                                        // wait 2s for DH22 to warm up
   dht.begin();
   float h = dht.readHumidity();                                         // Read Humidity
   float t = dht.readTemperature();                                      // Read Temperature
@@ -266,7 +265,7 @@ void loop()
   if (DHT22_status == 1){ 
     pinMode(DHTPIN, OUTPUT);
     digitalWrite(DHT22_PWR,HIGH);                                                                                                  // Send the command to get temperatures
-    dodelay(1000);                                             //sleep for 1.5 - 2's to allow sensor to warm up
+    dodelay(2000);                                             //sleep for 1.5 - 2's to allow sensor to warm up
     // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
     sthr.humidity = ((dht.readHumidity())*10);
 
@@ -335,6 +334,7 @@ void dodelay(unsigned int ms)
 #ifdef SENSOR_CO2S8
 void read_co2(void){
     int n;
+    cdm.begin(9600);
     CDM8S_enable(); 
     dodelay(5000);
     // Pregunta por el sensor de CO2...
@@ -353,6 +353,7 @@ void read_co2(void){
       if(compruebaCDM()) break;    
     }
     CDM8S_disable();  
+    cdm.end();
 }
 
 boolean compruebaCDM(void){
@@ -440,6 +441,11 @@ void SetUpWIFI(){
   itoa(sthr.humidity, c, 10);
   GET += c;
   GET += ",";  
+#ifdef SENSOR_CO2S8
+  itoa(sthr.co2, c, 10);
+  GET += c;
+  GET += ","; 
+#endif 
   itoa(sthr.battery, c, 10);
   GET += c;
   GET +="HTTP/1.1\r\n";
